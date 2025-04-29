@@ -40,41 +40,27 @@ def grab_banner(ip, port):
 
 
 def ping_host(host):
-    """Pings a host and returns its response along with IP address and packet info."""
-    print(f"\n🔍 Pinging {host}...\n")
-
-    # Resolve the IP address of the host
     try:
         ip_address = socket.gethostbyname(host)
-        print(f"🌍 IP Address of {host}: {ip_address}")
     except socket.gaierror:
-        print(f"❌ Could not resolve IP for {host}.")
-        return None
+        return "Could not resolve IP for host.", None
 
-    # Use 4 packets for both Windows and Linux/macOS
-    cmd = ["ping", "-n", "4", host] if platform.system().lower() == "windows" else ["ping", "-c", "4", host]
+    # FULL PATH to ping
+    ping_path = "/sbin/ping" if platform.system().lower() != "windows" else "ping"
+    cmd = [ping_path, "-n", "4", host] if platform.system().lower() == "windows" else [ping_path, "-c", "4", host]
 
     try:
-        # Run the ping command with a timeout of 5 seconds
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=5)
         output = result.stdout.strip()
-
-        if result.returncode == 0:
-            print(f"✅ {host} is reachable!")
-        else:
-            print(f"❌ {host} is not reachable.")
-
-        print(f"\nPacket Information:\n{output}")
         log_result(f"Ping to {host}:\n{output}")
-        return ip_address  # Return the IP address of the host
+        return output, ip_address
     except subprocess.TimeoutExpired:
-        print(f"❌ Ping to {host} timed out. No response after 4 packets.")
         log_result(f"Ping to {host} timed out.")
-        return None
+        return "Ping timed out.", None
     except Exception as e:
-        print(f"❌ Ping failed: {e}")
-        log_result(f"Ping to {host} failed with error: {e}")
-        return None
+        log_result(f"Ping to {host} failed: {e}")
+        return f"Ping failed: {e}", None
+
 
 
 def log_result(entry):
