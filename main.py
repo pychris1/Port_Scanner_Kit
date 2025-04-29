@@ -39,15 +39,20 @@ def grab_banner(ip, port):
         return None
 
 
+import shutil  # ADD this at top with imports!
+
 def ping_host(host):
     try:
         ip_address = socket.gethostbyname(host)
     except socket.gaierror:
         return "Could not resolve IP for host.", None
 
-    # FULL PATH to ping
-    ping_path = "/sbin/ping" if platform.system().lower() != "windows" else "ping"
-    cmd = [ping_path, "-n", "4", host] if platform.system().lower() == "windows" else [ping_path, "-c", "4", host]
+    # Auto-detect the ping executable
+    ping_executable = shutil.which("ping")
+    if not ping_executable:
+        return "Ping utility not found on system.", None
+
+    cmd = [ping_executable, "-n", "4", host] if platform.system().lower() == "windows" else [ping_executable, "-c", "4", host]
 
     try:
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=5)
@@ -60,6 +65,7 @@ def ping_host(host):
     except Exception as e:
         log_result(f"Ping to {host} failed: {e}")
         return f"Ping failed: {e}", None
+
 
 
 
