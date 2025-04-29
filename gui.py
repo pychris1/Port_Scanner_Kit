@@ -124,7 +124,7 @@ def assess_vulnerability(open_ports):
 
 
 def lookup_ip_threat(ip):
-    API_KEY = 'your_abuseipdb_api_key_here'
+    API_KEY = 'f1ca7d0cae6b8e9c4e60a813db3682c8a52b3afc9212ec40d107362e46af6fe7c839545cb023038f'
     url = "https://api.abuseipdb.com/api/v2/check"
     querystring = {'ipAddress': ip, 'maxAgeInDays': '90'}
     headers = {'Accept': 'application/json', 'Key': API_KEY}
