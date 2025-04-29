@@ -6,7 +6,8 @@ import requests
 import concurrent.futures
 import os
 import json
-
+import shutil
+import streamlit as st
 
 # Generate a new log file with a timestamp each time the program starts
 LOG_FILE = f"scan_log_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
@@ -39,7 +40,7 @@ def grab_banner(ip, port):
         return None
 
 
-import shutil  # ADD this at top with imports!
+
 
 def ping_host(host):
     try:
@@ -54,17 +55,20 @@ def ping_host(host):
 
     cmd = [ping_executable, "-n", "4", host] if platform.system().lower() == "windows" else [ping_executable, "-c", "4", host]
 
-    try:
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=5)
-        output = result.stdout.strip()
-        log_result(f"Ping to {host}:\n{output}")
-        return output, ip_address
-    except subprocess.TimeoutExpired:
-        log_result(f"Ping to {host} timed out.")
-        return "Ping timed out.", None
-    except Exception as e:
-        log_result(f"Ping to {host} failed: {e}")
-        return f"Ping failed: {e}", None
+    # 🌀 Show spinner while running ping
+    with st.spinner('📡 Pinging target... Please wait...'):
+        try:
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=5)
+            output = result.stdout.strip()
+            log_result(f"Ping to {host}:\n{output}")
+            return output, ip_address
+        except subprocess.TimeoutExpired:
+            log_result(f"Ping to {host} timed out.")
+            return "Ping timed out.", None
+        except Exception as e:
+            log_result(f"Ping to {host} failed: {e}")
+            return f"Ping failed: {e}", None
+
 
 
 
