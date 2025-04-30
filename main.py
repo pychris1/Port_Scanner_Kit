@@ -8,6 +8,8 @@ import os
 import json
 import shutil
 import streamlit as st
+import time
+
 
 # Generate a new log file with a timestamp each time the program starts
 LOG_FILE = f"scan_log_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
@@ -42,32 +44,26 @@ def grab_banner(ip, port):
 
 
 
+
 def ping_host(host):
     try:
-        ip_address = socket.gethostbyname(host)
+        ip = socket.gethostbyname(host)
     except socket.gaierror:
-        return "Could not resolve IP for host.", None
+        return "❌ Could not resolve IP.", None
 
-    # Auto-detect the ping executable
-    ping_executable = shutil.which("ping")
-    if not ping_executable:
-        return "Ping utility not found on system.", None
-
-    cmd = [ping_executable, "-n", "4", host] if platform.system().lower() == "windows" else [ping_executable, "-c", "4", host]
-
-    # 🌀 Show spinner while running ping
-    with st.spinner('📡 Pinging target... Please wait...'):
+    results = []
+    for i in range(4):
         try:
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=5)
-            output = result.stdout.strip()
-            log_result(f"Ping to {host}:\n{output}")
-            return output, ip_address
-        except subprocess.TimeoutExpired:
-            log_result(f"Ping to {host} timed out.")
-            return "Ping timed out.", None
+            start = time.time()
+            with socket.create_connection((ip, 80), timeout=2):
+                end = time.time()
+                latency = round((end - start) * 1000, 2)
+                results.append(f"Reply from {ip}: time={latency}ms")
         except Exception as e:
-            log_result(f"Ping to {host} failed: {e}")
-            return f"Ping failed: {e}", None
+            results.append(f"Request to {ip} failed: {e}")
+        time.sleep(1)
+
+    return "\n".join(results), ip
 
 
 
