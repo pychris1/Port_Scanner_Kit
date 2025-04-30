@@ -7,6 +7,7 @@ import requests
 import concurrent.futures
 import os
 import json
+import shutil
 
 # --- Setup ---
 LOG_FILE = f"scan_log_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
