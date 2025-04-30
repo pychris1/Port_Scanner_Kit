@@ -44,21 +44,26 @@ def ping_host(host):
     try:
         ip_address = socket.gethostbyname(host)
     except socket.gaierror:
-        return "Could not resolve IP for host.", None
+        return "❌ Could not resolve IP for host.", None
 
-    cmd = ["ping", "-n", "4", host] if platform.system().lower() == "windows" else ["ping", "-c", "4", host]
+    ping_executable = shutil.which("ping")
+    if not ping_executable:
+        return "❌ Ping utility not found on system.", None
 
-    try:
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=5)
-        output = result.stdout.strip()
-        log_result(f"Ping to {host}:\n{output}")
-        return output, ip_address
-    except subprocess.TimeoutExpired:
-        log_result(f"Ping to {host} timed out.")
-        return "Ping timed out.", None
-    except Exception as e:
-        log_result(f"Ping to {host} failed: {e}")
-        return f"Ping failed: {e}", None
+    cmd = [ping_executable, "-n", "4", host] if platform.system().lower() == "windows" else [ping_executable, "-c", "4", host]
+
+    with st.spinner("📡 Pinging... please wait..."):
+        try:
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=5)
+            output = result.stdout.strip()
+            log_result(f"Ping to {host}:\n{output}")
+            return output, ip_address
+        except subprocess.TimeoutExpired:
+            log_result(f"Ping to {host} timed out.")
+            return "⏱️ Ping timed out.", ip_address
+        except Exception as e:
+            log_result(f"Ping to {host} failed: {e}")
+            return f"❌ Ping failed: {e}", ip_address
 
 
 def geo_ip_lookup(ip):
