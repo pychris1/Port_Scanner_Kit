@@ -117,7 +117,9 @@ if host_input:
             else:
                 
                 threat_json = json.dumps(threat_info, indent=2)
-                st.markdown(f"<pre style='text-align:center;'>{threat_json}</pre>", unsafe_allow_html=True)
+                st.markdown("<div style='display: flex; justify-content: center;'>", unsafe_allow_html=True)
+                st.code(threat_json)
+                st.markdown("</div>", unsafe_allow_html=True)
                 
 
                 abuse_score = threat_info.get("Abuse Score", 0)
