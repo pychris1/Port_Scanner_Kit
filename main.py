@@ -8,6 +8,7 @@ import json
 import time
 import errno
 import pandas as pd
+import streamlit as st
 
 # Setup
 LOG_FILE = f"scan_log_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
@@ -71,7 +72,6 @@ def scan_ports(ip, port_range=(1, 1024)):
     return pd.DataFrame(open_ports)
 
 # Ping Function
-
 def ping_host(host):
     try:
         ip = socket.gethostbyname(host)
@@ -93,7 +93,6 @@ def ping_host(host):
     return "\n".join(results), ip
 
 # Geo IP
-
 def geo_ip_lookup(ip):
     try:
         response = session.get(f"https://ipinfo.io/{ip}/json", timeout=2)
@@ -115,9 +114,8 @@ def geo_ip_lookup(ip):
         return {"error": str(e)}
 
 # Threat Intelligence
-
 def lookup_ip_threat(ip):
-API_KEY = st.secrets["api_keys"]["abuseipdb"]
+    API_KEY = st.secrets["api_keys"]["abuseipdb"]
     url = "https://api.abuseipdb.com/api/v2/check"
     querystring = {'ipAddress': ip, 'maxAgeInDays': '90'}
     headers = {'Accept': 'application/json', 'Key': API_KEY}
