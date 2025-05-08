@@ -28,14 +28,16 @@ if host_input:
         ip = socket.gethostbyname(host_input)
 
         if ping_clicked:
-            with st.spinner(f"<div style='text-align:center;'>{'Pinging target (4 pings ~2s)...'}</div>"):
+            st.markdown("<p style='text-align:center;'>📶 Pinging target (4 pings ~2s)...</p>", unsafe_allow_html=True)
+            with st.spinner(""):
                 result, resolved_ip = ping_host(host_input)
             st.markdown("<h3 style='text-align:center;'>📶 Ping Result</h3>", unsafe_allow_html=True)
             st.code(result)
 
         if geo_clicked:
             st.markdown("<h3 style='text-align:center;'>🌍 Geo-IP Info</h3>", unsafe_allow_html=True)
-            with st.spinner("Looking up Geo-IP info (1–2 seconds)..."):
+            st.markdown("<p style='text-align:center;'>🌍 Looking up Geo-IP info (1–2 seconds)...</p>", unsafe_allow_html=True)
+            with st.spinner(""):
                 geo_info = geo_ip_lookup(ip)
 
             if "error" in geo_info:
@@ -61,7 +63,8 @@ if host_input:
 
         if scan_clicked:
             st.markdown("<h3 style='text-align:center;'>🔎 Open Ports</h3>", unsafe_allow_html=True)
-            with st.spinner("Scanning ports (est. 5–10 seconds)..."):
+            st.markdown("<p style='text-align:center;'>⏳ Scanning ports (est. 5–10 seconds)...</p>", unsafe_allow_html=True)
+            with st.spinner(""):
                 results_df = scan_ports(ip)
 
             open_ports = results_df[results_df['State'] == 'Open']
@@ -85,7 +88,8 @@ if host_input:
 
         if vuln_clicked:
             st.markdown("<h3 style='text-align:center;'>🛡️ Vulnerability Score</h3>", unsafe_allow_html=True)
-            with st.spinner("Assessing vulnerability (est. few seconds)..."):
+            st.markdown("<p style='text-align:center;'>🔍 Assessing vulnerability (est. few seconds)...</p>", unsafe_allow_html=True)
+            with st.spinner(""):
                 scan_df = scan_ports(ip)
                 score = assess_vulnerability(scan_df)
 
