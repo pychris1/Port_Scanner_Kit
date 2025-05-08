@@ -120,6 +120,7 @@ if host_input:
             st.markdown("<p style='text-align:center; display: flex; align-items: center; justify-content: center;'>🧠 Fetching threat intelligence (est. ~3s)... <span class='stSpinner'></span></p>", unsafe_allow_html=True)
             with st.spinner(""):
                 threat_info = lookup_ip_threat(ip)
+                vpn_hint = 'VPN or proxy likely' if 'vpn' in str(threat_info).lower() or 'hosting' in str(threat_info).lower() else 'No VPN/proxy indicators found'
 
             if "error" in threat_info:
                 st.error(f"❌ Threat Lookup Failed: {threat_info['error']}")
@@ -136,11 +137,11 @@ if host_input:
 """, unsafe_allow_html=True)
                 abuse_score = threat_info.get("Abuse Score", 0)
                 if abuse_score >= 50:
-                    st.markdown("<div style='text-align:center; color: red; font-size: 1.1rem; font-weight: 600; background-color: #fdecea; padding: 10px; border-radius: 8px;'>⚠️ High abuse confidence score — this IP is likely malicious.</div>", unsafe_allow_html=True)
+                    st.markdown("<div style='text-align:center; color: red; font-size: 1.1rem; font-weight: 600; background-color: #fdecea; padding: 10px; border-radius: 8px;'>⚠️ High abuse confidence score — this IP is likely malicious.<br><em>🔍 {vpn_hint}</em></div>", unsafe_allow_html=True)
                 elif abuse_score >= 20:
-                    st.markdown("<div style='text-align:center; color: orange; font-size: 1.1rem; font-weight: 600; background-color: #fff8e1; padding: 10px; border-radius: 8px;'>⚠️ Moderate abuse confidence score.</div>", unsafe_allow_html=True)
+                    st.markdown("<div style='text-align:center; color: orange; font-size: 1.1rem; font-weight: 600; background-color: #fff8e1; padding: 10px; border-radius: 8px;'>⚠️ Moderate abuse confidence score.<br><em>🔍 {vpn_hint}</em></div>", unsafe_allow_html=True)
                 else:
-                    st.markdown("<div style='text-align:center; color: green; font-size: 1.1rem; font-weight: 600; background-color: #e8f5e9; padding: 10px; border-radius: 8px;'>✅ Low abuse confidence score. This IP appears safe.</div>", unsafe_allow_html=True)
+                    st.markdown(f"<div style='text-align:center; color: green; font-size: 1.1rem; font-weight: 600; background-color: #e8f5e9; padding: 10px; border-radius: 8px;'>✅ Low abuse confidence score. This IP appears safe.<br><em>🔍 {vpn_hint}</em></div>", unsafe_allow_html=True), unsafe_allow_html=True)
 
     except socket.gaierror:
         st.error("❌ Invalid domain or IP address.")
