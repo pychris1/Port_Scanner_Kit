@@ -130,11 +130,11 @@ if host_input:
 """, unsafe_allow_html=True)
                 abuse_score = threat_info.get("Abuse Score", 0)
                 if abuse_score >= 50:
-                    st.markdown("<div style='text-align:center; color: red;'><strong>⚠️ High abuse confidence score — this IP is likely malicious.</strong></div>", unsafe_allow_html=True)
+                    st.markdown("<div style='text-align:center; color: red; font-size: 1.1rem; font-weight: 600; background-color: #fdecea; padding: 10px; border-radius: 8px;'>⚠️ High abuse confidence score — this IP is likely malicious.</div>", unsafe_allow_html=True)
                 elif abuse_score >= 20:
-                    st.markdown("<div style='text-align:center; color: orange;'><strong>⚠️ Moderate abuse confidence score.</strong></div>", unsafe_allow_html=True)
+                    st.markdown("<div style='text-align:center; color: orange; font-size: 1.1rem; font-weight: 600; background-color: #fff8e1; padding: 10px; border-radius: 8px;'>⚠️ Moderate abuse confidence score.</div>", unsafe_allow_html=True)
                 else:
-                    st.markdown("<div style='text-align:center; color: green;'><strong>✅ Low abuse confidence score. This IP appears safe.</strong></div>", unsafe_allow_html=True)
+                    st.markdown("<div style='text-align:center; color: green; font-size: 1.1rem; font-weight: 600; background-color: #e8f5e9; padding: 10px; border-radius: 8px;'>✅ Low abuse confidence score. This IP appears safe.</div>", unsafe_allow_html=True)
 
     except socket.gaierror:
         st.error("❌ Invalid domain or IP address.")
