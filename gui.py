@@ -36,13 +36,18 @@ if host_input:
             geo_info = geo_ip_lookup(host_input)
             st.json(geo_info)
 
-            if 'loc' in geo_info and geo_info['loc']:
-                try:
-                    lat, lon = map(float, geo_info['loc'].split(','))
-                    st.subheader("📍 Approximate Location Map")
-                    st.map(pd.DataFrame({"lat": [lat], "lon": [lon]}))
-                except Exception:
-                    st.warning("🌎 Could not map the location properly.")
+            if "Location" in geo_info:
+    try:
+        lat, lon = map(float, geo_info["Location"].split(","))
+        if (lat, lon) == (0.0, 0.0):
+            st.warning("🌎 No accurate location available for this IP.")
+        else:
+            st.subheader("📍 Approximate Location Map")
+            st.map(pd.DataFrame({"lat": [lat], "lon": [lon]}))
+    except Exception:
+        st.warning("🌎 Could not parse coordinates for mapping.")
+else:
+    st.warning("🌎 Location data not found in Geo-IP results.")
 
         if scan_clicked:
             st.subheader("🔎 Open Ports")
