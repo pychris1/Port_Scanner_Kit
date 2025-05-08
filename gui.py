@@ -36,7 +36,7 @@ if host_input:
 
         if geo_clicked:
             st.markdown("<h3 style='text-align:center;'>🌍 Geo-IP Info</h3>", unsafe_allow_html=True)
-            st.markdown("<p style='text-align:center; display: flex; align-items: center; justify-content: center;'>🌍 Looking up Geo-IP info (1–2 seconds)... <span class='stSpinner'></span></p>", unsafe_allow_html=True)
+            st.markdown("", unsafe_allow_html=True)
             with st.spinner(""):
                 geo_info = geo_ip_lookup(ip)
 
