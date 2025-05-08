@@ -121,7 +121,7 @@ def lookup_ip_threat(ip):
     headers = {'Accept': 'application/json', 'Key': API_KEY}
 
     try:
-        response = session.get(url, headers=headers, params=querystring, timeout=5)
+        response = session.get(url, headers=headers, params=querystring, timeout=10)
         response.raise_for_status()
         data = response.json()['data']
         return {
