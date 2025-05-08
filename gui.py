@@ -28,7 +28,7 @@ if host_input:
         ip = socket.gethostbyname(host_input)
 
         if ping_clicked:
-            st.markdown("<p style='text-align:center; display: flex; align-items: center; justify-content: center;'>📶 Pinging target (4 pings ~2s)... <span class='stSpinner'></span></p>", unsafe_allow_html=True)
+            st.markdown("<p style='text-align:center;'><p style='text-align:center; display: flex; align-items: center; justify-content: center;'>📶 Pinging target (4 pings ~2s)... <span class='stSpinner'></span></p></p>", unsafe_allow_html=True)
             with st.spinner(""):
                 result, resolved_ip = ping_host(host_input)
             st.markdown("<h3 style='text-align:center;'>📶 Ping Result</h3>", unsafe_allow_html=True)
