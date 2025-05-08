@@ -67,22 +67,26 @@ if host_input:
                 for _, row in open_ports.iterrows():
                     st.markdown(f"<div style='text-align:center;'>Port {row['Port']}: {row['State']} - {row['Banner'] or 'No banner'}</div>", unsafe_allow_html=True)
 
-                st.download_button("📄 Download Results (JSON)",
+                st.markdown("<div style='text-align:center;'>", unsafe_allow_html=True)
+st.download_button("📄 Download Results (JSON)",
                                    data=open_ports.to_json(orient="records", indent=2),
-                                   file_name="open_ports.json",
-                                   mime="application/json")
+                       file_name="open_ports.json",
+                       mime="application/json")
 
                 st.download_button("📄 Download Results (TXT)",
                                    data=open_ports.to_csv(index=False),
-                                   file_name="open_ports.txt",
-                                   mime="text/plain")
+                       file_name="open_ports.txt",
+                       mime="text/plain")
+st.markdown("</div>", unsafe_allow_html=True)
+st.markdown("</div>", unsafe_allow_html=True)
 
         if vuln_clicked:
             st.markdown("<h3 style='text-align:center;'>🛡️ Vulnerability Score</h3>", unsafe_allow_html=True)
             with st.spinner("Assessing vulnerability (est. few seconds)..."):
                 scan_df = scan_ports(ip)
                 score = assess_vulnerability(scan_df)
-            st.metric("Risk Level", f"{score} / 5")
+            st.markdown("<div style='text-align:center;'>", unsafe_allow_html=True)
+st.metric("Risk Level", f"{score} / 5")
 
             st.markdown("<h3 style='text-align:center;'>🔎 Passive DNS Records</h3>", unsafe_allow_html=True)
             with st.spinner("Querying DNS history..."):
@@ -108,7 +112,9 @@ if host_input:
             if "error" in threat_info:
                 st.error(f"❌ Threat Lookup Failed: {threat_info['error']}")
             else:
-                st.json(threat_info)
+                st.markdown("<div style='text-align:center;'>", unsafe_allow_html=True)
+st.json(threat_info)
+st.markdown("</div>", unsafe_allow_html=True)
                 abuse_score = threat_info.get("Abuse Score", 0)
                 if abuse_score >= 50:
                     st.error("⚠️ High abuse confidence score — this IP is likely malicious.")
