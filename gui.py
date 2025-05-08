@@ -27,13 +27,15 @@ if host_input:
         ip = socket.gethostbyname(host_input)
 
         if ping_clicked:
-            result, resolved_ip = ping_host(host_input)
+            with st.spinner("Pinging target (4 pings ~2s)..."):
+                result, resolved_ip = ping_host(host_input)
             st.subheader("📶 Ping Result")
             st.code(result)
 
         if geo_clicked:
             st.subheader("🌍 Geo-IP Info")
-            geo_info = geo_ip_lookup(ip)
+            with st.spinner("Looking up Geo-IP info (1–2 seconds)..."):
+                geo_info = geo_ip_lookup(ip)
             if "error" in geo_info:
                 st.error(f"❌ Geo-IP Lookup Failed: {geo_info['error']}")
             else:
@@ -53,7 +55,8 @@ if host_input:
 
         if scan_clicked:
             st.subheader("🔎 Open Ports")
-            results_df = scan_ports(ip)
+            with st.spinner("Scanning ports (est. 5–10 seconds)..."):
+                results_df = scan_ports(ip)
 
             open_ports = results_df[results_df['State'] == 'Open']
 
@@ -75,13 +78,15 @@ if host_input:
 
         if vuln_clicked:
             st.subheader("🛡️ Vulnerability Score")
-            scan_df = scan_ports(ip)
-            score = assess_vulnerability(scan_df)
+            with st.spinner("Assessing vulnerability (est. few seconds)..."):
+                scan_df = scan_ports(ip)
+                score = assess_vulnerability(scan_df)
             st.metric("Risk Level", f"{score} / 5")
 
         if threat_clicked:
             st.subheader("🚨 Threat Intelligence")
-            threat_info = lookup_ip_threat(ip)
+            with st.spinner("Fetching threat intelligence (est. ~3s)..."):
+                threat_info = lookup_ip_threat(ip)
             if "error" in threat_info:
                 st.error(f"❌ Threat Lookup Failed: {threat_info['error']}")
             else:
