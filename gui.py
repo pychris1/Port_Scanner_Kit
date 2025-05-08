@@ -122,12 +122,11 @@ if host_input:
                 threat_json = json.dumps(threat_info, indent=2)
                 abuse_score = threat_info.get("Abuse Score", 0)
                 color = '#d32f2f' if abuse_score >= 50 else ('#f57c00' if abuse_score >= 20 else '#388e3c')
-                st.markdown("<div style='display: flex; justify-content: center;'>", unsafe_allow_html=True)
                 color = '#d32f2f' if abuse_score >= 50 else ('#f57c00' if abuse_score >= 20 else '#388e3c')
-                st.markdown(f"""
-                <pre style='text-align: left; background-color: #e8f5e9; color: {color}; padding: 1em; border-radius: 8px; font-family: monospace;'>
+                st.markdown("<div style='display: flex; justify-content: center;'>", unsafe_allow_html=True)
+                st.markdown(f"<pre style='margin: 0 auto; width: fit-content; background-color: #e8f5e9; color: {color}; padding: 1em; border-radius: 8px; font-family: monospace;'>
 {threat_json}
-</pre>""", unsafe_allow_html=True)
+</pre>", unsafe_allow_html=True)
                 st.markdown("</div>", unsafe_allow_html=True)
                 
 
