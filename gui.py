@@ -28,7 +28,7 @@ if host_input:
         ip = socket.gethostbyname(host_input)
 
         if ping_clicked:
-            with st.spinner("Pinging target (4 pings ~2s)..."):
+            with st.spinner(f"<div style='text-align:center;'>{'Pinging target (4 pings ~2s)...'}</div>"):
                 result, resolved_ip = ping_host(host_input)
             st.markdown("<h3 style='text-align:center;'>📶 Ping Result</h3>", unsafe_allow_html=True)
             st.code(result)
@@ -123,7 +123,7 @@ if host_input:
                 threat_json = json.dumps(threat_info, indent=2)
                 st.markdown(f"""
 <div style='display: flex; justify-content: center;'>
-  <pre style='background-color: #f0f4c3; color: {color}; padding: 1.5em; border-left: 6px solid {color}; border-radius: 12px; font-family: Menlo, Consolas, monospace; white-space: pre-wrap; text-align: left; box-shadow: 0 6px 16px rgba(0,0,0,0.15); max-width: 85%; font-size: 1rem; line-height: 1.6;'>
+  <pre style='background-color: #f0f4c3; color: {color}; padding: 1.5em; border-left: 6px solid {color}; border-radius: 12px; font-family: Menlo, Consolas, monospace; white-space: pre-wrap; text-align: left; box-shadow: 0 6px 16px rgba(0,0,0,0.15); max-width: 85%; font-size: 1rem; line-height: 1.6; overflow-x: auto;'>
 {threat_json}
   </pre>
 </div>
