@@ -37,17 +37,17 @@ if host_input:
             st.json(geo_info)
 
             if "Location" in geo_info:
-    try:
-        lat, lon = map(float, geo_info["Location"].split(","))
-        if (lat, lon) == (0.0, 0.0):
-            st.warning("🌎 No accurate location available for this IP.")
-        else:
-            st.subheader("📍 Approximate Location Map")
-            st.map(pd.DataFrame({"lat": [lat], "lon": [lon]}))
-    except Exception:
-        st.warning("🌎 Could not parse coordinates for mapping.")
-else:
-    st.warning("🌎 Location data not found in Geo-IP results.")
+                try:
+                    lat, lon = map(float, geo_info["Location"].split(","))
+                    if (lat, lon) == (0.0, 0.0):
+                        st.warning("🌎 No accurate location available for this IP.")
+                    else:
+                        st.subheader("📍 Approximate Location Map")
+                        st.map(pd.DataFrame({"lat": [lat], "lon": [lon]}))
+                except Exception:
+                    st.warning("🌎 Could not parse coordinates for mapping.")
+            else:
+                st.warning("🌎 Location data not found in Geo-IP results.")
 
         if scan_clicked:
             st.subheader("🔎 Open Ports")
@@ -84,6 +84,13 @@ else:
                 st.error(f"❌ Threat Lookup Failed: {threat_info['error']}")
             else:
                 st.json(threat_info)
+                abuse_score = threat_info.get("Abuse Score", 0)
+                if abuse_score >= 50:
+                    st.error("⚠️ High abuse confidence score — this IP is likely malicious.")
+                elif abuse_score >= 20:
+                    st.warning("⚠️ Moderate abuse confidence score.")
+                else:
+                    st.success("✅ Low abuse confidence score. This IP appears safe.")
 
     except socket.gaierror:
         st.error("❌ Invalid domain or IP address.")
