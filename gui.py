@@ -84,14 +84,13 @@ if host_input:
                 score = assess_vulnerability(scan_df)
             st.metric("Risk Level", f"{score} / 5")
 
-                if st.button("Passive DNS Lookup"):
+        if st.button("Passive DNS Lookup"):
             st.subheader("🔎 Passive DNS Records")
             with st.spinner("Querying DNS history..."):
                 try:
                     dns_response = requests.get(f"https://api.hackertarget.com/hostsearch/?q={host_input}", timeout=5)
                     if dns_response.status_code == 200:
-                        dns_lines = dns_response.text.strip().split("
-")
+                        dns_lines = dns_response.text.strip().split("\n")
                         if dns_lines:
                             for line in dns_lines:
                                 domain, resolved_ip = line.split(',')
