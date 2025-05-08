@@ -4,6 +4,7 @@ import socket
 import json
 import pandas as pd
 from main import ping_host, geo_ip_lookup, scan_ports, lookup_ip_threat, assess_vulnerability
+import requests
 
 st.set_page_config(page_title="🛡️ Cyber Scanner", layout="centered")
 st.title("🛡️ Network Vulnerability & Threat Intelligence Scanner")
@@ -82,6 +83,25 @@ if host_input:
                 scan_df = scan_ports(ip)
                 score = assess_vulnerability(scan_df)
             st.metric("Risk Level", f"{score} / 5")
+
+                if st.button("Passive DNS Lookup"):
+            st.subheader("🔎 Passive DNS Records")
+            with st.spinner("Querying DNS history..."):
+                try:
+                    dns_response = requests.get(f"https://api.hackertarget.com/hostsearch/?q={host_input}", timeout=5)
+                    if dns_response.status_code == 200:
+                        dns_lines = dns_response.text.strip().split("
+")
+                        if dns_lines:
+                            for line in dns_lines:
+                                domain, resolved_ip = line.split(',')
+                                st.text(f"{domain} → {resolved_ip}")
+                        else:
+                            st.info("No passive DNS records found.")
+                    else:
+                        st.error("Failed to fetch passive DNS data.")
+                except Exception as e:
+                    st.error(f"Error querying passive DNS: {e}")
 
         if threat_clicked:
             st.subheader("🚨 Threat Intelligence")
