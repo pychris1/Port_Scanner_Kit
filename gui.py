@@ -88,7 +88,7 @@ if host_input:
 
         if vuln_clicked:
             st.markdown("<h3 style='text-align:center;'>🛡️ Vulnerability Score</h3>", unsafe_allow_html=True)
-            st.markdown("<p style='text-align:center; display: flex; align-items: center; justify-content: center;'>🔍 Assessing vulnerability (est. few seconds)... <span class='stSpinner'></span></p>", unsafe_allow_html=True)
+            st.markdown("", unsafe_allow_html=True)
             with st.spinner(""):
                 scan_df = scan_ports(ip)
                 score = assess_vulnerability(scan_df)
@@ -98,7 +98,7 @@ if host_input:
             st.markdown("</div>", unsafe_allow_html=True)
 
             st.markdown("<h3 style='text-align:center;'>🔎 Passive DNS Records</h3>", unsafe_allow_html=True)
-            st.markdown("<p style='text-align:center; display: flex; align-items: center; justify-content: center;'>📡 Querying DNS history... <span class='stSpinner'></span></p>", unsafe_allow_html=True)
+            st.markdown("", unsafe_allow_html=True)
             with st.spinner(""):
                 try:
                     dns_response = requests.get(f"https://api.hackertarget.com/hostsearch/?q={host_input}", timeout=5)
