@@ -63,7 +63,7 @@ if host_input:
 
         if scan_clicked:
             st.markdown("<h3 style='text-align:center;'>🔎 Open Ports</h3>", unsafe_allow_html=True)
-            st.markdown("<p style='text-align:center; display: flex; align-items: center; justify-content: center;'>⏳ Scanning ports (est. 5–10 seconds)... <span class='stSpinner'></span></p>", unsafe_allow_html=True)
+            st.markdown("", unsafe_allow_html=True)
             with st.spinner(""):
                 results_df = scan_ports(ip)
 
