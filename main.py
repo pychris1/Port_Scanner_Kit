@@ -117,7 +117,7 @@ def geo_ip_lookup(ip):
 # Threat Intelligence
 
 def lookup_ip_threat(ip):
-    API_KEY = 'YOUR_REAL_API_KEY'
+API_KEY = st.secrets["api_keys"]["abuseipdb"]
     url = "https://api.abuseipdb.com/api/v2/check"
     querystring = {'ipAddress': ip, 'maxAgeInDays': '90'}
     headers = {'Accept': 'application/json', 'Key': API_KEY}
