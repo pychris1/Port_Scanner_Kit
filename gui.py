@@ -120,7 +120,7 @@ if host_input:
             else:
                 abuse_score = threat_info.get("Abuse Score", 0)
                 color = '#d32f2f' if abuse_score >= 50 else ('#f57c00' if abuse_score >= 20 else '#388e3c')
-                threat_json = json.dumps(threat_info, indent=2)
+                threat_json = json.dumps(threat_info, indent=2).replace('{', '{<br>').replace('}', '<br>}').replace(',', ',<br>').replace('"', '&quot;')
                 st.markdown(f"""
 <div style='display: flex; justify-content: center;'>
   <pre style='background-color: #f0f4c3; color: {color}; padding: 1.5em; border-left: 6px solid {color}; border-radius: 12px; font-family: Menlo, Consolas, monospace; white-space: pre-wrap; text-align: left; box-shadow: 0 6px 16px rgba(0,0,0,0.15); max-width: 85%; font-size: 1rem; line-height: 1.6; overflow-x: auto;'>
