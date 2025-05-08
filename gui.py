@@ -40,7 +40,7 @@ if host_input:
             if "error" in geo_info:
                 st.error(f"❌ Geo-IP Lookup Failed: {geo_info['error']}")
             else:
-                st.json(geo_info)
+                    st.json(geo_info)
                 if "Location" in geo_info:
                     try:
                         lat, lon = map(float, geo_info["Location"].split(","))
@@ -68,7 +68,7 @@ if host_input:
                     st.markdown(f"<div style='text-align:center;'>Port {row['Port']}: {row['State']} - {row['Banner'] or 'No banner'}</div>", unsafe_allow_html=True)
 
                 st.markdown("<div style='text-align:center;'>", unsafe_allow_html=True)
-st.download_button("📄 Download Results (JSON)",
+        st.download_button("📄 Download Results (JSON)",
                                    data=open_ports.to_json(orient="records", indent=2),
                        file_name="open_ports.json",
                        mime="application/json")
@@ -86,7 +86,7 @@ st.markdown("</div>", unsafe_allow_html=True)
                 scan_df = scan_ports(ip)
                 score = assess_vulnerability(scan_df)
             st.markdown("<div style='text-align:center;'>", unsafe_allow_html=True)
-st.metric("Risk Level", f"{score} / 5")
+    st.metric("Risk Level", f"{score} / 5")
 
             st.markdown("<h3 style='text-align:center;'>🔎 Passive DNS Records</h3>", unsafe_allow_html=True)
             with st.spinner("Querying DNS history..."):
