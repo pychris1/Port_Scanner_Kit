@@ -104,7 +104,7 @@ def geo_ip_lookup(ip):
             "Region": data.get("region", "Unknown"),
             "Country": data.get("country", "Unknown"),
             "ISP": data.get("org", "Unknown"),
-            "Location": data.get("loc", "Unknown"),
+            "Location": data.get("loc", "0,0"),
             "Timezone": data.get("timezone", "Unknown"),
         }
         log_result(f"Geo-IP Lookup for {ip}: {geo_info}")
