@@ -9,7 +9,7 @@ import json
 import shutil
 import streamlit as st
 import time
-
+import errno
 
 # Generate a new log file with a timestamp each time the program starts
 LOG_FILE = f"scan_log_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
