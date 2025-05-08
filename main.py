@@ -109,49 +109,15 @@ def geo_ip_lookup(ip):
 
 
 # Scan Ports (No changes needed here)
-def scan_ports(ip, port_range=(1, 1024)):
-    """Scans open ports on a given IP address using multi-threading for speed."""
-    print(f"\n🔍 Scanning {ip} for open ports...\n")
-    open_ports = []
+for future in concurrent.futures.as_completed(futures):
+    result = future.result()
+    if result:
+        open_ports.append(result)
+        state = result["state"]
+        port = result["port"]
+        banner = result.get("banner", "No banner")
 
-    def scan_port(port):
-        """Attempts to connect to a port to check if it's open and grab banner."""
-        try:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-                sock.settimeout(0.3)
-                if sock.connect_ex((ip, port)) == 0:
-                    banner = grab_banner(ip, port)
-                    return (port, banner)  # ALWAYS return a tuple
-        except Exception:
-            pass
-        return None
-
-    with concurrent.futures.ThreadPoolExecutor(max_workers=50) as executor:
-        results = executor.map(scan_port, range(port_range[0], port_range[1] + 1))
-
-    for result in results:
-        if result is not None:
-            port, banner  =result
-            open_ports.append((port, banner))
-    if open_ports:
-        for port, banner in open_ports:
-            port_info = f"Port {port} open"
-            print(f"  - {port_info}")
-            log_result(port_info)
-
-            if banner:
-                banner_info = f"    ↳ Service Detected: {banner}"
-                print(banner_info)
-                log_result(banner_info)
-            else:
-                no_banner_info = "    ↳ No banner detected"
-                print(no_banner_info)
-                log_result(no_banner_info)
-    else:
-        result = f"❌ No open ports found on {ip} in range {port_range[0]}-{port_range[1]}"
-        print(result)
-        log_result(result)
-
+        st.text(f"Port {port}: {state.upper()} - {banner if banner else ''}")
 
 # Assess Vulnerability (Enhance with more logic)
 def assess_vulnerability(ip, open_ports=None):
