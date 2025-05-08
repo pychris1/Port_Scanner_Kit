@@ -1,14 +1,14 @@
 import streamlit as st
 import socket
 import datetime
-import platform
-import subprocess
 import requests
 import concurrent.futures
 import os
 import json
+from main import ping_host  # Uses your updated ping_host from main.py
 
 # --- Setup ---
+os.makedirs("logs", exist_ok=True)
 LOG_FILE = f"scan_log_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
 DEBUG_MODE = True
 VULNERABILITY_THRESHOLDS = {
@@ -28,7 +28,6 @@ def log_result(entry):
         with open(LOG_FILE, "a") as log:
             log.write(f"\n[{timestamp}] {entry}\n")
 
-
 def grab_banner(ip, port):
     try:
         with socket.socket() as s:
@@ -38,28 +37,6 @@ def grab_banner(ip, port):
             return banner.decode(errors="ignore").strip()
     except Exception:
         return None
-
-
-def ping_host(host):
-    try:
-        ip_address = socket.gethostbyname(host)
-    except socket.gaierror:
-        return "Could not resolve IP for host.", None
-
-    cmd = ["ping", "-n", "4", host] if platform.system().lower() == "windows" else ["ping", "-c", "4", host]
-
-    try:
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=5)
-        output = result.stdout.strip()
-        log_result(f"Ping to {host}:\n{output}")
-        return output, ip_address
-    except subprocess.TimeoutExpired:
-        log_result(f"Ping to {host} timed out.")
-        return "Ping timed out.", None
-    except Exception as e:
-        log_result(f"Ping to {host} failed: {e}")
-        return f"Ping failed: {e}", None
-
 
 def geo_ip_lookup(ip):
     try:
@@ -72,7 +49,6 @@ def geo_ip_lookup(ip):
     except Exception as e:
         log_result(f"Geo-IP lookup failed: {e}")
         return {"error": str(e)}
-
 
 def scan_ports(ip, port_range=(1, 1024)):
     open_ports = []
@@ -105,7 +81,6 @@ def scan_ports(ip, port_range=(1, 1024)):
     status_text.text("Scan complete!")
     return open_ports
 
-
 def assess_vulnerability(open_ports):
     score = 1
     ports_only = [p for p, _ in open_ports]
@@ -122,12 +97,11 @@ def assess_vulnerability(open_ports):
 
     return score
 
-
 def lookup_ip_threat(ip):
-    API_KEY = 'f1ca7d0cae6b8e9c4e60a813db3682c8a52b3afc9212ec40d107362e46af6fe7c839545cb023038f'
+    abuseipdb_api_key = st.secrets["api_keys"]["abuseipdb"]
     url = "https://api.abuseipdb.com/api/v2/check"
     querystring = {'ipAddress': ip, 'maxAgeInDays': '90'}
-    headers = {'Accept': 'application/json', 'Key': API_KEY}
+    headers = {'Accept': 'application/json', 'Key': abuseipdb_api_key}
 
     try:
         response = requests.get(url, headers=headers, params=querystring, timeout=5)
@@ -139,7 +113,7 @@ def lookup_ip_threat(ip):
         log_result(f"Threat lookup failed: {e}")
         return {"error": str(e)}
 
-# --- Streamlit App ---
+# --- Streamlit App UI ---
 st.set_page_config(page_title="Cyber Scanner", layout="centered", initial_sidebar_state="collapsed")
 st.title("🛡️ Network Vulnerability & Threat Intelligence Scanner")
 
@@ -162,9 +136,13 @@ if host_input:
         ip = socket.gethostbyname(host_input)
 
         if ping_clicked:
-            result, resolved_ip = ping_host(host_input)
-            st.subheader("📶 Ping Result")
-            st.code(result)
+            returned = ping_host(host_input)
+            if returned is None:
+                st.error("❌ Ping failed — no result returned.")
+            else:
+                result, resolved_ip = returned
+                st.subheader("📶 Ping Result")
+                st.code(result)
 
         if geo_clicked:
             st.subheader("🌍 Geo-IP Info")

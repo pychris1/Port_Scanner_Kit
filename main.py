@@ -8,12 +8,12 @@ import os
 import json
 import shutil
 import streamlit as st
+from ping3 import ping
 
-# Generate a new log file with a timestamp each time the program starts
-LOG_FILE = f"scan_log_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
-DEBUG_MODE = True  # Set to False to disable logging
-
-# Define vulnerability thresholds for scoring
+# --- Setup ---
+os.makedirs("logs", exist_ok=True)
+LOG_FILE = f"logs/scan_log_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+DEBUG_MODE = True
 VULNERABILITY_THRESHOLDS = {
     "harmless": 1,
     "mild": 2,
@@ -21,73 +21,56 @@ VULNERABILITY_THRESHOLDS = {
     "high": 4,
     "very_high": 5,
 }
-
-# Common ports that are often vulnerable (Telnet, FTP, RDP, etc.)
 COMMON_VULNERABLE_PORTS = [21, 22, 23, 25, 110, 143, 445, 3389]
-
-# Create a session object for faster HTTP requests
 session = requests.Session()
 
-def grab_banner(ip, port):
-    """Attempts to grab the service banner from an open port."""
-    try:
-        with socket.socket() as s:
-            s.settimeout(2)
-            s.connect((ip, port))
-            banner = s.recv(1024)
-            return banner.decode(errors="ignore").strip()
-    except Exception:
-        return None
-
-
-
-
+# --- Ping Function (4-packet simulation) ---
 def ping_host(host):
     try:
-        ip_address = socket.gethostbyname(host)
-    except socket.gaierror:
-        return "Could not resolve IP for host.", None
+        ip = socket.gethostbyname(host)
+        latencies = []
 
-    # Auto-detect the ping executable
-    ping_executable = shutil.which("ping")
-    if not ping_executable:
-        return "Ping utility not found on system.", None
+        for _ in range(4):
+            latency = ping(ip, timeout=2)
+            latencies.append(latency)
 
-    cmd = [ping_executable, "-n", "4", host] if platform.system().lower() == "windows" else [ping_executable, "-c", "4", host]
+        responses = []
+        received = 0
 
-    # 🌀 Show spinner while running ping
-    with st.spinner('📡 Pinging target... Please wait...'):
-        try:
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=5)
-            output = result.stdout.strip()
-            log_result(f"Ping to {host}:\n{output}")
-            return output, ip_address
-        except subprocess.TimeoutExpired:
-            log_result(f"Ping to {host} timed out.")
-            return "Ping timed out.", None
-        except Exception as e:
-            log_result(f"Ping to {host} failed: {e}")
-            return f"Ping failed: {e}", None
+        for i, latency in enumerate(latencies, 1):
+            if latency is not None:
+                received += 1
+                responses.append(f"Reply {i}: time={round(latency * 1000, 2)} ms")
+            else:
+                responses.append(f"Reply {i}: Request timed out.")
 
+        sent = 4
+        lost = sent - received
+        loss_percent = round((lost / sent) * 100)
 
+        summary = f"""Pinging {host} [{ip}] with {sent} packets:
+{chr(10).join(responses)}
 
+Packets: Sent = {sent}, Received = {received}, Lost = {lost} ({loss_percent}% loss)
+IP: {ip}
+"""
+        return summary, ip
 
-
+    except Exception as e:
+        return f"Ping failed: {e}", None
+# --- Logging ---
 def log_result(entry):
-    """Logs results to a file if DEBUG_MODE is enabled."""
     if DEBUG_MODE:
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         with open(LOG_FILE, "a") as log:
             log.write(f"\n[{timestamp}] {entry}\n")
         print(f"📝 Results saved to {LOG_FILE}")
 
-
-# Geo-IP Lookup (Similar to before)
+# --- Geo IP ---
 def geo_ip_lookup(ip):
-    """Fetches Geo-IP information for a given IP address and prints it to the terminal."""
     try:
         response = session.get(f"https://ipinfo.io/{ip}/json", timeout=2)
-        response.raise_for_status()  # Raise an error for HTTP issues
+        response.raise_for_status()
         data = response.json()
 
         geo_info = {
@@ -100,7 +83,6 @@ def geo_ip_lookup(ip):
             "Timezone": data.get("timezone", "Unknown"),
         }
 
-        # Print geo info to the terminal
         print("\n🌍 Geo-IP Information:")
         for key, value in geo_info.items():
             print(f"   {key}: {value}")
@@ -111,21 +93,28 @@ def geo_ip_lookup(ip):
         print(f"❌ Error fetching Geo-IP data: {e}")
         return None
 
+# --- Port Scanning ---
+def grab_banner(ip, port):
+    try:
+        with socket.socket() as s:
+            s.settimeout(2)
+            s.connect((ip, port))
+            banner = s.recv(1024)
+            return banner.decode(errors="ignore").strip()
+    except Exception:
+        return None
 
-# Scan Ports (No changes needed here)
 def scan_ports(ip, port_range=(1, 1024)):
-    """Scans open ports on a given IP address using multi-threading for speed."""
     print(f"\n🔍 Scanning {ip} for open ports...\n")
     open_ports = []
 
     def scan_port(port):
-        """Attempts to connect to a port to check if it's open and grab banner."""
         try:
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
                 sock.settimeout(0.3)
                 if sock.connect_ex((ip, port)) == 0:
                     banner = grab_banner(ip, port)
-                    return (port, banner)  # ALWAYS return a tuple
+                    return (port, banner)
         except Exception:
             pass
         return None
@@ -134,38 +123,32 @@ def scan_ports(ip, port_range=(1, 1024)):
         results = executor.map(scan_port, range(port_range[0], port_range[1] + 1))
 
     for result in results:
-        if result is not None:
-            port, banner  =result
+        if result:
+            port, banner = result
             open_ports.append((port, banner))
-    if open_ports:
-        for port, banner in open_ports:
-            port_info = f"Port {port} open"
-            print(f"  - {port_info}")
-            log_result(port_info)
-
+            print(f"  - Port {port} open")
+            log_result(f"Port {port} open")
             if banner:
-                banner_info = f"    ↳ Service Detected: {banner}"
-                print(banner_info)
-                log_result(banner_info)
+                print(f"    ↳ Service Detected: {banner}")
+                log_result(f"    ↳ Service Detected: {banner}")
             else:
-                no_banner_info = "    ↳ No banner detected"
-                print(no_banner_info)
-                log_result(no_banner_info)
-    else:
-        result = f"❌ No open ports found on {ip} in range {port_range[0]}-{port_range[1]}"
+                print("    ↳ No banner detected")
+                log_result("    ↳ No banner detected")
+
+    if not open_ports:
+        result = f"❌ No open ports found on {ip}"
         print(result)
         log_result(result)
 
+    return open_ports
 
-# Assess Vulnerability (Enhance with more logic)
+# --- Vulnerability Scoring ---
 def assess_vulnerability(ip, open_ports=None):
-    """Assesses vulnerability based on the number of open ports and their risk level."""
-    score = 1  # Default to "harmless"
-
+    score = 1
     if open_ports is None:
-        open_ports = scan_ports(ip)  # Avoid re-scanning if ports are already provided
+        open_ports = scan_ports(ip)
 
-    critical_ports = [port for port in open_ports if port in COMMON_VULNERABLE_PORTS]
+    critical_ports = [port for port, _ in open_ports if port in COMMON_VULNERABLE_PORTS]
 
     if critical_ports:
         score = VULNERABILITY_THRESHOLDS["very_high"]
@@ -176,65 +159,29 @@ def assess_vulnerability(ip, open_ports=None):
     elif len(open_ports) > 5:
         score = VULNERABILITY_THRESHOLDS["mild"]
 
-    # Print the vulnerability score to terminal
     print(f"🛡️ Vulnerability score for {ip}: {score} / 5")
-
-    # Log the score to the log file
     log_result(f"Vulnerability score for {ip}: {score} / 5")
-
     return score
 
+# --- Threat Intelligence ---
 def lookup_ip_threat(ip):
-    """Looks up the threat reputation of an IP using AbuseIPDB API."""
-    API_KEY = 'f1ca7d0cae6b8e9c4e60a813db3682c8a52b3afc9212ec40d107362e46af6fe7c839545cb023038f'  # Replace with your real key
-
+    API_KEY = st.secrets["api_keys"]["abuseipdb"]
     url = "https://api.abuseipdb.com/api/v2/check"
-    querystring = {
-        'ipAddress': ip,
-        'maxAgeInDays': '90'
-    }
-    headers = {
-        'Accept': 'application/json',
-        'Key': API_KEY
-    }
+    querystring = {'ipAddress': ip, 'maxAgeInDays': '90'}
+    headers = {'Accept': 'application/json', 'Key': API_KEY}
 
     try:
         response = requests.get(url, headers=headers, params=querystring, timeout=5)
         response.raise_for_status()
         data = response.json()['data']
+        log_result(f"Threat Lookup for {ip}: {data}")
+        return data
+    except Exception as e:
+        log_result(f"Threat lookup failed: {e}")
+        return {"error": str(e)}
 
-        abuse_confidence_score = data.get('abuseConfidenceScore', 0)
-        total_reports = data.get('totalReports', 0)
-        country = data.get('countryCode', 'Unknown')
-
-        lookup_result = (
-            f"\n🚨 Threat Intelligence Lookup for {ip}:\n"
-            f"   Country: {country}\n"
-            f"   Abuse Confidence Score: {abuse_confidence_score}%\n"
-            f"   Total Reports: {total_reports}"
-        )
-        print(lookup_result)
-        log_result(lookup_result)
-
-        if abuse_confidence_score >= 50:
-            warning = "⚠️ WARNING: This IP is likely malicious!"
-            print(warning)
-            log_result(warning)
-        else:
-            clean = "✅ This IP appears relatively clean."
-            print(clean)
-            log_result(clean)
-
-    except requests.exceptions.RequestException as e:
-        error = f"❌ Error during threat lookup: {e}"
-        print(error)
-        log_result(error)
-
-
-
-# Interactive terminal (Expand with system monitoring and other features)
+# --- Optional Terminal CLI (for testing outside Streamlit) ---
 def interactive_terminal():
-    """Starts the interactive terminal for user commands."""
     print("\n🚀 Welcome to the Interactive Terminal! Type 'help' for commands.\n")
 
     while True:
@@ -242,61 +189,42 @@ def interactive_terminal():
 
         if command.startswith("ping "):
             host = command.split("ping ")[1]
-            ip = ping_host(host)
-            if ip:
-                print(f"🌍 IP Address of {host}: {ip}")
+            result, _ = ping_host(host)
+            print(result)
 
         elif command.startswith("geo "):
             ip = command.split("geo ")[1]
             geo_info = geo_ip_lookup(ip)
             if geo_info:
-                print("\n🌍 Geo-IP Information:")
                 for key, value in geo_info.items():
                     print(f"   {key}: {value}")
 
         elif command.startswith("scan "):
             ip = command.split("scan ")[1]
-            open_ports = scan_ports(ip)
-            if open_ports:
-                print("\n📜 Open Ports and Services:")
-                for port, banner in open_ports:
-                    print(f"  - Port {port} open")
-                    if banner:
-                        print(f"    ↳ Service Detected: {banner}")
-                    else:
-                        print(f"    ↳ No banner detected")
+            scan_ports(ip)
 
         elif command.startswith("vuln "):
             ip = command.split("vuln ")[1]
-            score = assess_vulnerability(ip)
-            print(f"🛡️ Vulnerability score for {ip}: {score} / 5")
+            assess_vulnerability(ip)
 
         elif command.startswith("threat "):
             ip = command.split("threat ")[1]
             lookup_ip_threat(ip)
 
         elif command == "help":
-            print("\nAvailable Commands:")
-            print("  ping [HOST]    - Ping a domain/IP (e.g., ping google.com)")
-            print("  geo [IP]       - Get Geo-IP info (e.g., geo 8.8.8.8)")
-            print("  scan [IP]      - Scan common ports and detect services (e.g., scan scanme.nmap.org)")
-            print("  vuln [IP]      - Assess vulnerability score for an IP (e.g., vuln 192.168.1.1)")
-            print("  threat [IP]    - Perform a Threat Intelligence lookup (e.g., threat 1.2.3.4)")
-            print("  exit           - Exit the terminal\n")
-
+            print("""
+Commands:
+  ping [HOST]
+  geo [IP]
+  scan [IP]
+  vuln [IP]
+  threat [IP]
+  exit
+""")
         elif command == "exit":
-            print("👋 Exiting...")
             break
-
         else:
-            print("❌ Invalid command. Type 'help' for options.")
+            print("❌ Invalid command.")
 
-
-# Run the interactive terminal
-# All your imports at the top (socket, requests, etc.)
-# Your ping_host(), scan_ports(), geo_ip_lookup(), lookup_ip_threat(), etc.
-
-    # your terminal interface code
 if __name__ == "__main__":
     interactive_terminal()
-
