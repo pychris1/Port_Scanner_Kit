@@ -119,12 +119,11 @@ if host_input:
                 st.error(f"❌ Threat Lookup Failed: {threat_info['error']}")
             else:
                 
-                threat_json = json.dumps(threat_info, indent=2).replace('
-', '<br>')
+                threat_json = json.dumps(threat_info, indent=2)
                 st.markdown(f"""
-<div style='margin: 0 auto; width: fit-content; background-color: #e8f5e9; color: {color}; padding: 1em; border-radius: 8px; font-family: monospace;'>
+<pre style='margin: 0 auto; width: fit-content; background-color: #e8f5e9; color: {color}; padding: 1em; border-radius: 8px; font-family: monospace;'>
 {threat_json}
-</div>
+</pre>
 """, unsafe_allow_html=True)
                 st.markdown("</div>", unsafe_allow_html=True)
                 
