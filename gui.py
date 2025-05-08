@@ -87,7 +87,7 @@ if host_input:
                 score = assess_vulnerability(scan_df)
 
             st.markdown("<div style='text-align:center;'>", unsafe_allow_html=True)
-            st.metric("Risk Level", f"{score} / 5")
+            st.markdown(f"<div style='text-align:center; font-size: 1.5em;'><strong>Risk Level:</strong> {score} / 5</div>", unsafe_allow_html=True)
             st.markdown("</div>", unsafe_allow_html=True)
 
             st.markdown("<h3 style='text-align:center;'>🔎 Passive DNS Records</h3>", unsafe_allow_html=True)
@@ -121,11 +121,11 @@ if host_input:
 
                 abuse_score = threat_info.get("Abuse Score", 0)
                 if abuse_score >= 50:
-                    st.error("⚠️ High abuse confidence score — this IP is likely malicious.")
+                    st.markdown("<div style='text-align:center; color: red;'><strong>⚠️ High abuse confidence score — this IP is likely malicious.</strong></div>", unsafe_allow_html=True)
                 elif abuse_score >= 20:
-                    st.warning("⚠️ Moderate abuse confidence score.")
+                    st.markdown("<div style='text-align:center; color: orange;'><strong>⚠️ Moderate abuse confidence score.</strong></div>", unsafe_allow_html=True)
                 else:
-                    st.success("✅ Low abuse confidence score. This IP appears safe.")
+                    st.markdown("<div style='text-align:center; color: green;'><strong>✅ Low abuse confidence score. This IP appears safe.</strong></div>", unsafe_allow_html=True)
 
     except socket.gaierror:
         st.error("❌ Invalid domain or IP address.")
