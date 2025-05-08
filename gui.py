@@ -37,10 +37,12 @@ if host_input:
             st.markdown("<h3 style='text-align:center;'>🌍 Geo-IP Info</h3>", unsafe_allow_html=True)
             with st.spinner("Looking up Geo-IP info (1–2 seconds)..."):
                 geo_info = geo_ip_lookup(ip)
+
             if "error" in geo_info:
                 st.error(f"❌ Geo-IP Lookup Failed: {geo_info['error']}")
             else:
-                                st.json(geo_info)
+                st.json(geo_info)
+
                 if "Location" in geo_info:
                     try:
                         lat, lon = map(float, geo_info["Location"].split(","))
@@ -83,6 +85,7 @@ if host_input:
             with st.spinner("Assessing vulnerability (est. few seconds)..."):
                 scan_df = scan_ports(ip)
                 score = assess_vulnerability(scan_df)
+
             st.markdown("<div style='text-align:center;'>", unsafe_allow_html=True)
             st.metric("Risk Level", f"{score} / 5")
             st.markdown("</div>", unsafe_allow_html=True)
@@ -108,12 +111,14 @@ if host_input:
             st.markdown("<h3 style='text-align:center;'>🚨 Threat Intelligence</h3>", unsafe_allow_html=True)
             with st.spinner("Fetching threat intelligence (est. ~3s)..."):
                 threat_info = lookup_ip_threat(ip)
+
             if "error" in threat_info:
                 st.error(f"❌ Threat Lookup Failed: {threat_info['error']}")
             else:
                 st.markdown("<div style='text-align:center;'>", unsafe_allow_html=True)
                 st.json(threat_info)
                 st.markdown("</div>", unsafe_allow_html=True)
+
                 abuse_score = threat_info.get("Abuse Score", 0)
                 if abuse_score >= 50:
                     st.error("⚠️ High abuse confidence score — this IP is likely malicious.")
