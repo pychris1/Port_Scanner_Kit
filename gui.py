@@ -2,6 +2,7 @@
 import streamlit as st
 import socket
 import json
+import pandas as pd
 from main import ping_host, geo_ip_lookup, scan_ports, lookup_ip_threat, assess_vulnerability
 
 st.set_page_config(page_title="🛡️ Cyber Scanner", layout="centered")
@@ -39,25 +40,31 @@ if host_input:
                 try:
                     lat, lon = map(float, geo_info['loc'].split(','))
                     st.subheader("📍 Approximate Location Map")
-                    st.map(data={"lat": [lat], "lon": [lon]})
+                    st.map(pd.DataFrame({"lat": [lat], "lon": [lon]}))
                 except Exception:
                     st.warning("🌎 Could not map the location properly.")
 
         if scan_clicked:
             st.subheader("🔎 Open Ports")
             results_df = scan_ports(ip)
-            for _, row in results_df.iterrows():
-                st.text(f"Port {row['Port']}: {row['State']} - {row['Banner'] or 'No banner'}")
 
-            st.download_button("📄 Download Results (JSON)",
-                               data=results_df.to_json(orient="records", indent=2),
-                               file_name="port_scan_results.json",
-                               mime="application/json")
+            open_ports = results_df[results_df['State'] == 'Open']
 
-            st.download_button("📄 Download Results (TXT)",
-                               data=results_df.to_csv(index=False),
-                               file_name="port_scan_results.txt",
-                               mime="text/plain")
+            if open_ports.empty:
+                st.info("✅ All scanned ports are closed or filtered.")
+            else:
+                for _, row in open_ports.iterrows():
+                    st.text(f"Port {row['Port']}: {row['State']} - {row['Banner'] or 'No banner'}")
+
+                st.download_button("📄 Download Results (JSON)",
+                                   data=open_ports.to_json(orient="records", indent=2),
+                                   file_name="open_ports.json",
+                                   mime="application/json")
+
+                st.download_button("📄 Download Results (TXT)",
+                                   data=open_ports.to_csv(index=False),
+                                   file_name="open_ports.txt",
+                                   mime="text/plain")
 
         if vuln_clicked:
             st.subheader("🛡️ Vulnerability Score")
@@ -68,7 +75,10 @@ if host_input:
         if threat_clicked:
             st.subheader("🚨 Threat Intelligence")
             threat_info = lookup_ip_threat(ip)
-            st.json(threat_info)
+            if "error" in threat_info:
+                st.error(f"❌ Threat Lookup Failed: {threat_info['error']}")
+            else:
+                st.json(threat_info)
 
     except socket.gaierror:
         st.error("❌ Invalid domain or IP address.")
