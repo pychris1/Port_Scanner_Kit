@@ -28,7 +28,7 @@ if host_input:
         ip = socket.gethostbyname(host_input)
 
         if ping_clicked:
-            st.markdown("<p style='text-align:center;'>📶 Pinging target (4 pings ~2s)...</p>", unsafe_allow_html=True)
+            st.markdown("<p style='text-align:center; display: flex; align-items: center; justify-content: center;'>📶 Pinging target (4 pings ~2s)... <span class='stSpinner'></span></p>", unsafe_allow_html=True)
             with st.spinner(""):
                 result, resolved_ip = ping_host(host_input)
             st.markdown("<h3 style='text-align:center;'>📶 Ping Result</h3>", unsafe_allow_html=True)
@@ -36,7 +36,7 @@ if host_input:
 
         if geo_clicked:
             st.markdown("<h3 style='text-align:center;'>🌍 Geo-IP Info</h3>", unsafe_allow_html=True)
-            st.markdown("<p style='text-align:center;'>🌍 Looking up Geo-IP info (1–2 seconds)...</p>", unsafe_allow_html=True)
+            st.markdown("<p style='text-align:center; display: flex; align-items: center; justify-content: center;'>🌍 Looking up Geo-IP info (1–2 seconds)... <span class='stSpinner'></span></p>", unsafe_allow_html=True)
             with st.spinner(""):
                 geo_info = geo_ip_lookup(ip)
 
@@ -63,7 +63,7 @@ if host_input:
 
         if scan_clicked:
             st.markdown("<h3 style='text-align:center;'>🔎 Open Ports</h3>", unsafe_allow_html=True)
-            st.markdown("<p style='text-align:center;'>⏳ Scanning ports (est. 5–10 seconds)...</p>", unsafe_allow_html=True)
+            st.markdown("<p style='text-align:center; display: flex; align-items: center; justify-content: center;'>⏳ Scanning ports (est. 5–10 seconds)... <span class='stSpinner'></span></p>", unsafe_allow_html=True)
             with st.spinner(""):
                 results_df = scan_ports(ip)
 
@@ -88,7 +88,7 @@ if host_input:
 
         if vuln_clicked:
             st.markdown("<h3 style='text-align:center;'>🛡️ Vulnerability Score</h3>", unsafe_allow_html=True)
-            st.markdown("<p style='text-align:center;'>🔍 Assessing vulnerability (est. few seconds)...</p>", unsafe_allow_html=True)
+            st.markdown("<p style='text-align:center; display: flex; align-items: center; justify-content: center;'>🔍 Assessing vulnerability (est. few seconds)... <span class='stSpinner'></span></p>", unsafe_allow_html=True)
             with st.spinner(""):
                 scan_df = scan_ports(ip)
                 score = assess_vulnerability(scan_df)
@@ -98,7 +98,8 @@ if host_input:
             st.markdown("</div>", unsafe_allow_html=True)
 
             st.markdown("<h3 style='text-align:center;'>🔎 Passive DNS Records</h3>", unsafe_allow_html=True)
-            with st.spinner("Querying DNS history..."):
+            st.markdown("<p style='text-align:center; display: flex; align-items: center; justify-content: center;'>📡 Querying DNS history... <span class='stSpinner'></span></p>", unsafe_allow_html=True)
+            with st.spinner(""):
                 try:
                     dns_response = requests.get(f"https://api.hackertarget.com/hostsearch/?q={host_input}", timeout=5)
                     if dns_response.status_code == 200:
@@ -116,7 +117,8 @@ if host_input:
 
         if threat_clicked:
             st.markdown("<h3 style='text-align:center;'>🚨 Threat Intelligence</h3>", unsafe_allow_html=True)
-            with st.spinner("Fetching threat intelligence (est. ~3s)..."):
+            st.markdown("<p style='text-align:center; display: flex; align-items: center; justify-content: center;'>🧠 Fetching threat intelligence (est. ~3s)... <span class='stSpinner'></span></p>", unsafe_allow_html=True)
+            with st.spinner(""):
                 threat_info = lookup_ip_threat(ip)
 
             if "error" in threat_info:
