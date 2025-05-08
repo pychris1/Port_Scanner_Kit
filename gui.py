@@ -126,9 +126,6 @@ if host_input:
 {threat_json}
 </pre>
 """, unsafe_allow_html=True)
-                st.markdown("</div>", unsafe_allow_html=True)
-                
-
                 abuse_score = threat_info.get("Abuse Score", 0)
                 if abuse_score >= 50:
                     st.markdown("<div style='text-align:center; color: red;'><strong>⚠️ High abuse confidence score — this IP is likely malicious.</strong></div>", unsafe_allow_html=True)
