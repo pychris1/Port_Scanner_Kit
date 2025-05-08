@@ -7,7 +7,7 @@ from main import ping_host, geo_ip_lookup, scan_ports, lookup_ip_threat, assess_
 import requests
 
 st.set_page_config(page_title="🛡️ Cyber Scanner", layout="centered")
-st.title("🛡️ Network Vulnerability & Threat Intelligence Scanner")
+st.markdown("<h1 style='text-align:center;'>🛡️ Network Vulnerability & Threat Intelligence Scanner</h1>", unsafe_allow_html=True)
 
 host_input = st.text_input("Enter a domain or IP")
 col1, col2, col3, col4, col5 = st.columns(5)
@@ -30,11 +30,11 @@ if host_input:
         if ping_clicked:
             with st.spinner("Pinging target (4 pings ~2s)..."):
                 result, resolved_ip = ping_host(host_input)
-            st.subheader("📶 Ping Result")
+            st.markdown("<h3 style='text-align:center;'>📶 Ping Result</h3>", unsafe_allow_html=True)
             st.code(result)
 
         if geo_clicked:
-            st.subheader("🌍 Geo-IP Info")
+            st.markdown("<h3 style='text-align:center;'>🌍 Geo-IP Info</h3>", unsafe_allow_html=True)
             with st.spinner("Looking up Geo-IP info (1–2 seconds)..."):
                 geo_info = geo_ip_lookup(ip)
             if "error" in geo_info:
@@ -47,7 +47,7 @@ if host_input:
                         if (lat, lon) == (0.0, 0.0):
                             st.warning("🌎 No accurate location available for this IP.")
                         else:
-                            st.subheader("📍 Approximate Location Map")
+                            st.markdown("<h4 style='text-align:center;'>📍 Approximate Location Map</h4>", unsafe_allow_html=True)
                             st.map(pd.DataFrame({"lat": [lat], "lon": [lon]}))
                     except Exception:
                         st.warning("🌎 Could not parse coordinates for mapping.")
@@ -55,7 +55,7 @@ if host_input:
                     st.warning("🌎 Location data not found in Geo-IP results.")
 
         if scan_clicked:
-            st.subheader("🔎 Open Ports")
+            st.markdown("<h3 style='text-align:center;'>🔎 Open Ports</h3>", unsafe_allow_html=True)
             with st.spinner("Scanning ports (est. 5–10 seconds)..."):
                 results_df = scan_ports(ip)
 
@@ -78,13 +78,13 @@ if host_input:
                                    mime="text/plain")
 
         if vuln_clicked:
-            st.subheader("🛡️ Vulnerability Score")
+            st.markdown("<h3 style='text-align:center;'>🛡️ Vulnerability Score</h3>", unsafe_allow_html=True)
             with st.spinner("Assessing vulnerability (est. few seconds)..."):
                 scan_df = scan_ports(ip)
                 score = assess_vulnerability(scan_df)
             st.metric("Risk Level", f"{score} / 5")
 
-            st.subheader("🔎 Passive DNS Records")
+            st.markdown("<h3 style='text-align:center;'>🔎 Passive DNS Records</h3>", unsafe_allow_html=True)
             with st.spinner("Querying DNS history..."):
                 try:
                     dns_response = requests.get(f"https://api.hackertarget.com/hostsearch/?q={host_input}", timeout=5)
@@ -102,7 +102,7 @@ if host_input:
                     st.error(f"Error querying passive DNS: {e}")
 
         if threat_clicked:
-            st.subheader("🚨 Threat Intelligence")
+            st.markdown("<h3 style='text-align:center;'>🚨 Threat Intelligence</h3>", unsafe_allow_html=True)
             with st.spinner("Fetching threat intelligence (est. ~3s)..."):
                 threat_info = lookup_ip_threat(ip)
             if "error" in threat_info:
