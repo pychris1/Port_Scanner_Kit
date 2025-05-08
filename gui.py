@@ -123,7 +123,7 @@ if host_input:
                 threat_json = json.dumps(threat_info, indent=2)
                 st.markdown(f"""
 <div style='display: flex; justify-content: center;'>
-  <pre style='background-color: #e8f5e9; color: {color}; padding: 1em; border-radius: 8px; font-family: monospace; white-space: pre-wrap; text-align: left;'>
+  <pre style='background-color: #e8f5e9; color: {color}; padding: 1em; border-radius: 8px; font-family: monospace; white-space: pre-wrap; text-align: left; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border: 1px solid #ccc; max-width: 90%;'>
 {threat_json}
   </pre>
 </div>
