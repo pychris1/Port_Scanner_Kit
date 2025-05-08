@@ -65,7 +65,7 @@ if host_input:
                 st.info("✅ All scanned ports are closed or filtered.")
             else:
                 for _, row in open_ports.iterrows():
-                    st.text(f"Port {row['Port']}: {row['State']} - {row['Banner'] or 'No banner'}")
+                    st.markdown(f"<div style='text-align:center;'>Port {row['Port']}: {row['State']} - {row['Banner'] or 'No banner'}</div>", unsafe_allow_html=True)
 
                 st.download_button("📄 Download Results (JSON)",
                                    data=open_ports.to_json(orient="records", indent=2),
@@ -93,7 +93,7 @@ if host_input:
                         if dns_lines:
                             for line in dns_lines:
                                 domain, resolved_ip = line.split(',')
-                                st.text(f"{domain} → {resolved_ip}")
+                                st.markdown(f"<div style='text-align:center;'>{domain} → {resolved_ip}</div>", unsafe_allow_html=True)
                         else:
                             st.info("No passive DNS records found.")
                     else:
