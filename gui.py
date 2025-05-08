@@ -141,7 +141,7 @@ if host_input:
                 elif abuse_score >= 20:
                     st.markdown("<div style='text-align:center; color: orange; font-size: 1.1rem; font-weight: 600; background-color: #fff8e1; padding: 10px; border-radius: 8px;'>⚠️ Moderate abuse confidence score.<br><em>🔍 {vpn_hint}</em></div>", unsafe_allow_html=True)
                 else:
-                    st.markdown(f"<div style='text-align:center; color: green; font-size: 1.1rem; font-weight: 600; background-color: #e8f5e9; padding: 10px; border-radius: 8px;'>✅ Low abuse confidence score. This IP appears safe.<br><em>🔍 {vpn_hint}</em></div>", unsafe_allow_html=True), unsafe_allow_html=True)
+                    st.markdown(f"<div style='text-align:center; color: green; font-size: 1.1rem; font-weight: 600; background-color: #e8f5e9; padding: 10px; border-radius: 8px;'>✅ Low abuse confidence score. This IP appears safe.<br><em>🔍 {vpn_hint}</em></div>", unsafe_allow_html=True)
 
     except socket.gaierror:
         st.error("❌ Invalid domain or IP address.")
