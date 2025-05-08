@@ -70,15 +70,15 @@ if host_input:
                     st.markdown(f"<div style='text-align:center;'>Port {row['Port']}: {row['State']} - {row['Banner'] or 'No banner'}</div>", unsafe_allow_html=True)
 
                 st.markdown("<div style='display: flex; justify-content: center; gap: 10px;'>", unsafe_allow_html=True)
-                    st.download_button("📄 Download Results (JSON)",
+    st.download_button("📄 Download Results (JSON)",
                        data=open_ports.to_json(orient="records", indent=2),
                        file_name="open_ports.json",
                        mime="application/json")
-                                    st.download_button("📄 Download Results (TXT)",
+                                        st.download_button("📄 Download Results (TXT)",
                        data=open_ports.to_csv(index=False),
                        file_name="open_ports.txt",
                        mime="text/plain")
-                                    st.markdown("</div>", unsafe_allow_html=True)
+                                        st.markdown("</div>", unsafe_allow_html=True)
 
         if vuln_clicked:
             st.markdown("<h3 style='text-align:center;'>🛡️ Vulnerability Score</h3>", unsafe_allow_html=True)
