@@ -40,8 +40,8 @@ if host_input:
             if "error" in geo_info:
                 st.error(f"❌ Geo-IP Lookup Failed: {geo_info['error']}")
             else:
-                st.json(geo_info)
-                                if "Location" in geo_info:
+                                st.json(geo_info)
+                if "Location" in geo_info:
                     try:
                         lat, lon = map(float, geo_info["Location"].split(","))
                         if (lat, lon) == (0.0, 0.0):
