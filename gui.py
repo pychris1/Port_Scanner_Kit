@@ -116,7 +116,9 @@ if host_input:
                 st.error(f"❌ Threat Lookup Failed: {threat_info['error']}")
             else:
                 st.markdown("<div style='text-align:center;'>", unsafe_allow_html=True)
+                st.markdown("<div style='text-align:center;'>", unsafe_allow_html=True)
                 st.json(threat_info)
+                st.markdown("</div>", unsafe_allow_html=True)
                 st.markdown("</div>", unsafe_allow_html=True)
 
                 abuse_score = threat_info.get("Abuse Score", 0)
