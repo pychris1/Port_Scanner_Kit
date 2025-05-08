@@ -118,10 +118,11 @@ if host_input:
             if "error" in threat_info:
                 st.error(f"❌ Threat Lookup Failed: {threat_info['error']}")
             else:
-                
+                abuse_score = threat_info.get("Abuse Score", 0)
+                color = '#d32f2f' if abuse_score >= 50 else ('#f57c00' if abuse_score >= 20 else '#388e3c')
                 threat_json = json.dumps(threat_info, indent=2)
                 st.markdown(f"""
-<pre style='margin: 0 auto; width: fit-content; background-color: #e8f5e9; color: {color}; padding: 1em; border-radius: 8px; font-family: monospace;'>
+<pre style='margin: 0 auto; width: fit-content; background-color: #e8f5e9; color: {color}; padding: 1em; border-radius: 8px; font-family: monospace; white-space: pre-wrap;'>
 {threat_json}
 </pre>
 """, unsafe_allow_html=True)
